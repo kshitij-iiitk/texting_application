@@ -1,5 +1,7 @@
 import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
+import { getReceiverSocketId } from "../socket/socket.js";
+import { io } from "../socket/socket.js";
 
 export const sendMessage = async (req, res) => {
   try {
@@ -27,18 +29,18 @@ export const sendMessage = async (req, res) => {
       conversation.messages.push(newMessage._id);
     }
 
-    
-    await Promise.all([
-      newMessage.save(),
-      conversation.save(),
-    ]);
-    res.status(201).json({ newMessage});
+    await Promise.all([newMessage.save(), conversation.save()]);
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("newMessage", newMessage);
+    }
+
+    res.status(201).json({ newMessage });
   } catch (error) {
     console.error("Error sending message:", error.message);
     return res.status(500).json({ error: "Internal server error" });
   }
 };
-
 
 export const getMessage = async (req, res) => {
   try {
@@ -48,12 +50,11 @@ export const getMessage = async (req, res) => {
       participants: { $all: [senderId, receiverId] },
     }).populate("messages");
 
-    const messages = conversation ?.messages || [];
-
+    const messages = conversation?.messages || [];
 
     res.status(200).json({ messages });
   } catch (error) {
     console.error("Error fetching messages:", error.message);
     return res.status(500).json({ error: "Internal server error" });
   }
-}
+};
