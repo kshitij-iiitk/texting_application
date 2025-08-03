@@ -7,11 +7,11 @@ export const signup = async (req, res) => {
   try {
     console.log("Request body:", req.body); // Log the incoming data
 
-    const { fullName, userName, password, comfirmpassword, gender } = req.body;
+    const { fullName, userName, password, confirmPassword, gender } = req.body;
 
     console.log("Extracted userName:", userName); // Check if userName is properly extracted
 
-    if (password !== comfirmpassword) {
+    if (password !== confirmPassword) {
       return res.status(400).json({ error: "Passwords do not match" });
     }
 
@@ -46,6 +46,7 @@ export const signup = async (req, res) => {
         _id: newUser._id,
         userName: newUser.userName,
         fullName: newUser.fullName,
+        ProfilePic: newUser.ProfilePic,
       });
       console.log("User has been created successfully");
     }

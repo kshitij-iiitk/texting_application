@@ -1,22 +1,35 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Messages from "./Messages.jsx";
 import MessageInput from "./MessageInput.jsx";
-import {TiMessages} from "react-icons/ti";
+import { TiMessages } from "react-icons/ti";
+import useConversation from "../../zustand/useConversation.js";
+import { set } from "mongoose";
 
 const MessageContainer = () => {
-  const NoChatSelect = 1;
+  const { selectedConversations, setSelectedConversations } = useConversation();
+
+  useEffect(() => {
+    return () => {
+      //reset selected conversations when component unmounts
+      setSelectedConversations(null);
+    };
+  }, []);
+
   return (
     <div className=" md:min-w-[450px] flex flex-col">
       {
         <>
-          {NoChatSelect ? (
+          {!selectedConversations ? (
             <NoChatSelected />
           ) : (
             <>
               {/* Header */}
-              <div className="flex items-center justify-between bg-slate-500 px-4 py-2">
-                <span className="label-text">To:</span>
-                <span className="text-gray-900 font-bold"> John Doe</span>
+              <div className=" flex items-start bg-slate-500 px-4 py-2 mb-2">
+                <span className="label-text mr-1">{"To: "}</span>
+                <span className="text-gray-900 font-bold">
+                  {" "}
+                  {selectedConversations?.fullName}
+                </span>
               </div>
               <Messages />
             </>
