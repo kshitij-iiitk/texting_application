@@ -3,7 +3,7 @@ import Messages from "./Messages.jsx";
 import MessageInput from "./MessageInput.jsx";
 import { TiMessages } from "react-icons/ti";
 import useConversation from "../../zustand/useConversation.js";
-import { useAuthContext } from "../../context/authcontext.jsx";
+import { useAuthContext } from "../../context/AuthContext.jsx";
 
 
 const MessageContainer = () => {
