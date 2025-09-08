@@ -14,15 +14,19 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={authUser ? <Home /> : <Navigate to="/login" />}
+          element={authUser ? <Navigate to="/main" /> : <Navigate to="/main/login" />}
         />
         <Route
-          path="/login"
-          element={authUser ? <Navigate to="/" /> : <Login />}
+          path="/main"
+          element={authUser ? <Home /> : <Navigate to="/main/login" />}
         />
         <Route
-          path="/signup"
-          element={authUser ? <Navigate to="/" /> : <Signup />}
+          path="/main/login"
+          element={authUser ? <Navigate to="/main" /> : <Login />}
+        />
+        <Route
+          path="/main/signup"
+          element={authUser ? <Navigate to="/main" /> : <Signup />}
         />
       </Routes>
       <Toaster />

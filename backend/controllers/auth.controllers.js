@@ -2,6 +2,9 @@ import bcryptjs from "bcryptjs";
 
 import User from "../models/user.model.js";
 import generateTokenAndSetCookie from "../utils/generateToken.js";
+import { OAuth2Client } from 'google-auth-library';
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const signup = async (req, res) => {
   try {
@@ -88,4 +91,70 @@ export const logout = async (req, res) => {
   res.status(500).json({ error: "Internal server error" });
   console.log("Error in logout:", error.message);
  }
+};
+
+
+//Google Auth
+
+export const googleAuth = async (req, res) => {
+  try {
+    const { credential } = req.body; // Google ID token from frontend
+    
+    // Verify the Google token
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    
+    const payload = ticket.getPayload();
+    const { sub: googleId, email, name, picture } = payload;
+    
+    // Check if user already exists with this Google ID
+    let user = await User.findOne({ googleId });
+    
+    if (!user) {
+      // Check if user exists with this email (for account linking)
+      user = await User.findOne({ email });
+      
+      if (user) {
+        // Link Google account to existing user
+        user.googleId = googleId;
+        user.ProfilePic = user.ProfilePic || picture; // Keep existing profile pic if available
+        await user.save();
+      } else {
+        // Create new user with Google data
+        const userName = email.split('@')[0] + '_' + Date.now(); // Generate unique username
+        
+        user = new User({
+          fullName: name,
+          userName,
+          email,
+          googleId,
+          ProfilePic: picture,
+          password: null, // No password for Google users
+          gender: "not-specified", // Default gender for Google users
+          isGoogleUser: true, // Flag to identify Google users
+        });
+        
+        await user.save();
+      }
+    }
+    
+    // Generate token and set cookie
+    generateTokenAndSetCookie(user._id, res);
+    
+    res.status(200).json({
+      message: "Google authentication successful",
+      _id: user._id,
+      userName: user.userName,
+      fullName: user.fullName,
+      email: user.email,
+      ProfilePic: user.ProfilePic,
+      isGoogleUser: user.isGoogleUser || false,
+    });
+    
+  } catch (error) {
+    console.log("Error in Google auth:", error.message);
+    res.status(500).json({ error: "Google authentication failed" });
+  }
 };

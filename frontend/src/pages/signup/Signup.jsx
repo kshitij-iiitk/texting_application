@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import GenderCheckbox from "./GenderCheckbox";
 import useSignup from "../../hooks/useSignup";
+import GoogleButton from "../../components/google/GoogleButton";
 
 const Signup = () => {
   const [input, setInput] = useState({
@@ -91,6 +92,8 @@ const Signup = () => {
           >
             Already have an account?
           </a>
+          
+          <GoogleButton/>
          {loading? <span className="loading loading-spinner"></span> : (
            <button type="submit" className="btn btn-block btn-sm mt-2">
              Signup

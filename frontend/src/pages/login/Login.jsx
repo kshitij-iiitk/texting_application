@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import useLogin from "../../hooks/useLogin";
+import GoogleButton from "../../components/google/GoogleButton";
 
 
 const Login = () => {
@@ -51,6 +52,7 @@ const Login = () => {
           >
             New Here? Signup Now
           </a>
+          <GoogleButton/>
           <button  className="btn btn-block btn-sm mt-2"
           disabled={loading}>
            {loading ? <span className="loading loading-spinner"></span> : "Login"}
